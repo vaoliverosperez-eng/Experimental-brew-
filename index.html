@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Experimental Brew ☕</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --primary:#a62d0e;
+  --accent:#fbb03b;
+  --bg:#ffffff;
+  --text:#2b2b2b;
+}
+body.dark{
+  --bg:#121212;
+  --text:#f2f2f2;
+}
+body{
+  margin:0;
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+/* HEADER */
+header{
+  height:44px;
+  background:linear-gradient(90deg,var(--primary),var(--accent));
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 16px;
+  font-family:'Playfair Display',serif;
+}
+.menu-btn{font-size:1.4rem;cursor:pointer}
+
+/* DRAWER */
+.drawer{
+  position:fixed;
+  top:0;right:-260px;
+  width:260px;height:100%;
+  background:var(--bg);
+  box-shadow:-4px 0 20px rgba(0,0,0,.2);
+  padding:20px;
+  transition:.3s;
+  z-index:10;
+}
+.drawer.open{right:0}
+.drawer button{
+  width:100%;
+  margin:6px 0;
+  padding:10px;
+}
+
+/* MAIN */
+main{padding:16px}
+
+/* LIST */
+.item{
+  padding:12px 0;
+  border-bottom:1px solid #ddd;
+  cursor:pointer;
+  font-family:'Playfair Display',serif;
+}
+
+/* MODAL */
+.modal{
+  position:fixed;
+  inset:0;
+  background:var(--bg);
+  padding:20px;
+  overflow:auto;
+  display:none;
+  z-index:20;
+}
+.modal.open{display:block}
+.close{font-size:1.4rem;cursor:pointer}
+
+.star{color:var(--accent)}
+</style>
+</head>
+
+<body>
+
+<header>
+  ☕ Experimental Brew
+  <div class="menu-btn" onclick="toggleDrawer()">☰</div>
+</header>
+
+<div class="drawer" id="drawer">
+  <button onclick="showHome()">🏠 Início</button>
+  <button onclick="showCategory('gelados')">🧊 Cafés Gelados</button>
+  <button onclick="showCategory('coldbrew')">❄️ Cold Brew</button>
+  <button onclick="showCategory('quentes')">☕ Cafés Quentes</button>
+  <button onclick="showCategory('especiais')">✨ Especiais</button>
+  <button onclick="toggleDark()">🌙 Modo escuro</button>
+</div>
+
+<main id="content"></main>
+
+<div class="modal" id="modal">
+  <div class="close" onclick="closeModal()">❌</div>
+  <div id="modalContent"></div>
+</div>
+
+<script>
+const recipes=[
+{cat:'gelados',name:'Citrus Coffee Suave',fav:true,txt:'Café coado + laranja. Perfil cítrico e leve.'},
+{cat:'gelados',name:'Strawberry Coffee Suave',fav:true,txt:'Café com morango fresco.'},
+{cat:'gelados',name:'Orange Coffee',fav:false,txt:'Café com laranja.'},
+{cat:'coldbrew',name:'Cold Brew com Maracujá',fav:true,txt:'Infusão fria com maracujá.'},
+{cat:'coldbrew',name:'Cold Brew Tradicional',fav:false,txt:'Infusão fria clássica.'},
+{cat:'quentes',name:'Moka Latte',fav:false,txt:'Café + chocolate + leite.'},
+{cat:'quentes',name:'Cappuccino',fav:false,txt:'Café, leite e espuma.'},
+{cat:'especiais',name:'Afogato',fav:false,txt:'Café quente sobre sorvete.'}
+];
+
+const content=document.getElementById('content');
+
+function showHome(){
+  content.innerHTML=`
+    <h2>Bem-vindo ☕</h2>
+    <p>Explore receitas experimentais de café.</p>
+  `;
+}
+function showCategory(cat){
+  content.innerHTML='';
+  recipes.filter(r=>r.cat===cat).forEach(r=>{
+    const div=document.createElement('div');
+    div.className='item';
+    div.innerHTML=`${r.name} ${r.fav?'⭐':''}`;
+    div.onclick=()=>openRecipe(r);
+    content.appendChild(div);
+  });
+}
+function openRecipe(r){
+  document.getElementById('modalContent').innerHTML=`
+    <h2>${r.name}</h2>
+    <p>${r.txt}</p>
+  `;
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(){document.getElementById('modal').classList.remove('open')}
+function toggleDrawer(){document.getElementById('drawer').classList.toggle('open')}
+function toggleDark(){document.body.classList.toggle('dark')}
+
+showHome();
+</script>
+
+</body>
+</html>
