@@ -1,0 +1,224 @@
+<!DOCTYPE html><html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Experimental Brew ☕</title>  <!-- Google Fonts -->  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">  <style>
+    :root {
+      --primary: #a62d0e;
+      --secondary: #f6caa6;
+      --accent: #fbb03b;
+      --bg: #ffffff;
+      --text: #2b2b2b;
+    }
+
+    body.dark {
+      --bg: #121212;
+      --text: #f2f2f2;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* Top bar */
+    header {
+      height: 44px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      color: white;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+    }
+
+    /* Hamburger */
+    .menu {
+      font-size: 1.4rem;
+      cursor: pointer;
+    }
+
+    /* Drawer */
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: -260px;
+      width: 260px;
+      height: 100%;
+      background: var(--bg);
+      box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+      padding: 20px;
+      transition: right 0.3s;
+      z-index: 10;
+    }
+
+    .drawer.open {
+      right: 0;
+    }
+
+    .drawer h3 {
+      font-family: 'Playfair Display', serif;
+      margin-top: 0;
+    }
+
+    .drawer button, .drawer input {
+      width: 100%;
+      margin-top: 12px;
+      padding: 10px;
+      font-size: 0.95rem;
+    }
+
+    main {
+      padding: 16px;
+    }
+
+    .recipe {
+      border-bottom: 1px solid #ddd;
+      padding: 12px 0;
+      cursor: pointer;
+    }
+
+    .recipe h2 {
+      margin: 0;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .favorite {
+      color: var(--accent);
+    }
+
+    .details {
+      display: none;
+      font-size: 0.9rem;
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+
+    .recipe.open .details {
+      display: block;
+    }
+  </style></head>
+<body><header>
+  <span>☕ Experimental Brew</span>
+  <div class="menu" onclick="toggleDrawer()">☰</div>
+</header><!-- Drawer lateral --><div class="drawer" id="drawer">
+  <h3>Categorias</h3>
+  <button onclick="showCategory('all')">📖 Todas</button>
+  <button onclick="showCategory('Cafés Gelados')">🧊 Cafés Gelados</button>
+  <button onclick="showCategory('Cold Brew')">❄️ Cold Brew</button>
+  <button onclick="showCategory('Cafés Quentes')">☕ Cafés Quentes</button>
+  <button onclick="showCategory('Especiais')">✨ Especiais</button>  <hr>
+  <button onclick="showFavorites()">⭐ Favoritos</button>
+  <button onclick="toggleDarkMode()">🌙 Modo escuro</button>
+</div><!-- Página inicial --><main id="recipes"></main><!-- Modal da receita --><div id="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:20;">
+  <div style="background:var(--bg); color:var(--text); margin:8% auto; padding:22px; max-width:520px; border-radius:16px;">
+    <button onclick="closeModal()" style="float:right; font-size:1.1rem;">✕</button>
+    <div id="modalBody"></div>
+  </div>
+</div><script>
+const recipesData = [
+  { name:'Citrus Coffee Suave', category:'Cafés Gelados', favorite:true,
+    ingredientes:['Café coado (1:15–1:16)','Laranja','Gelo'],
+    processo:['Preparar o café','Adicionar gelo','Finalizar com laranja'],
+    perfil:'Refrescante e cítrico' },
+
+  { name:'Strawberry Coffee Suave', category:'Cafés Gelados', favorite:true,
+    ingredientes:['Café','Morangos','Gelo'],
+    processo:['Preparar morango','Adicionar gelo','Completar com café'],
+    perfil:'Frutado e delicado' },
+
+  { name:'Orange Coffee', category:'Cafés Gelados', favorite:false,
+    ingredientes:['Café','Suco de laranja','Gelo'],
+    processo:['Gelo no copo','Suco','Café por cima'],
+    perfil:'Cítrico intenso' },
+
+  { name:'Cold Brew com Maracujá', category:'Cold Brew', favorite:true,
+    ingredientes:['Café moído','Água fria','Polpa de maracujá'],
+    processo:['Misturar tudo','Infusionar 12–16h','Coar'],
+    perfil:'Tropical e equilibrado' },
+
+  { name:'Cold Brew Tradicional', category:'Cold Brew', favorite:false,
+    ingredientes:['Café','Água fria'],
+    processo:['Misturar','Infusionar','Coar'],
+    perfil:'Suave e encorpado' },
+
+  { name:'Moka Latte', category:'Cafés Quentes', favorite:false,
+    ingredientes:['Café','Chocolate','Leite'],
+    processo:['Derreter chocolate','Adicionar café','Leite'],
+    perfil:'Cremoso e achocolatado' },
+
+  { name:'Cappuccino', category:'Cafés Quentes', favorite:false,
+    ingredientes:['Café','Leite','Espuma'],
+    processo:['Café','Leite quente','Espuma'],
+    perfil:'Equilibrado' },
+
+  { name:'Afogato', category:'Especiais', favorite:false,
+    ingredientes:['Café quente','Sorvete'],
+    processo:['Sorvete','Café por cima'],
+    perfil:'Doce e intenso' }
+];
+
+const container = document.getElementById('recipes');
+
+function renderList(list){
+  container.innerHTML = '';
+  const grouped = {};
+  list.forEach(r => {
+    if(!grouped[r.category]) grouped[r.category]=[];
+    grouped[r.category].push(r);
+  });
+
+  Object.keys(grouped).forEach(cat => {
+    const h = document.createElement('h3');
+    h.textContent = cat.toUpperCase();
+    h.style.marginTop='24px';
+    container.appendChild(h);
+
+    grouped[cat].forEach(r => {
+      const div = document.createElement('div');
+      div.className='recipe';
+      div.innerHTML = `<h2>${r.name} ${r.favorite?'★':''}</h2>`;
+      div.onclick = () => openModal(r);
+      container.appendChild(div);
+    });
+  });
+}
+
+function openModal(r){
+  document.getElementById('modalBody').innerHTML = `
+    <h2>${r.name} ${r.favorite?'★':''}</h2>
+    <h4>Ingredientes</h4><ul>${r.ingredientes.map(i=>`<li>${i}</li>`).join('')}</ul>
+    <h4>Processo</h4><ul>${r.processo.map(p=>`<li>${p}</li>`).join('')}</ul>
+    <h4>Perfil</h4><p>${r.perfil}</p>`;
+  document.getElementById('modal').style.display='block';
+}
+
+function closeModal(){ document.getElementById('modal').style.display='none'; }
+function toggleDrawer(){ document.getElementById('drawer').classList.toggle('open'); }
+function toggleDarkMode(){ document.body.classList.toggle('dark'); }
+
+function showCategory(cat){
+  toggleDrawer();
+  if(cat==='all') renderList(recipesData);
+  else renderList(recipesData.filter(r=>r.category===cat));
+}
+
+function showFavorites(){
+  toggleDrawer();
+  renderList(recipesData.filter(r=>r.favorite));
+}
+
+renderList(recipesData);
+</script></body>
+</html>
