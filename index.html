@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Experimental Brew ☕</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --primary:#a62d0e;
+  --accent:#fbb03b;
+  --bg:#ffffff;
+  --card:#fff3e6;
+  --text:#2b2b2b;
+}
+body.dark{
+  --bg:#121212;
+  --card:#1e1e1e;
+  --text:#f2f2f2;
+}
+body{
+  margin:0;
+  font-family:Inter,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  transition:.3s;
+}
+
+/* HEADER FIX */
+header.topbar{
+  height:48px;
+  background:linear-gradient(90deg,var(--primary),var(--accent));
+  display:grid;
+  grid-template-columns:48px 1fr 48px;
+  align-items:center;
+  color:#fff;
+  font-family:'Playfair Display',serif;
+}
+header .left,
+header .right{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:1.4rem;
+  cursor:pointer;
+}
+header .center{
+  text-align:center;
+  font-size:1.05rem;
+  white-space:nowrap;
+}
+
+/* DRAWER */
+.drawer{
+  position:fixed;
+  top:0;left:-260px;
+  width:260px;height:100%;
+  background:var(--bg);
+  box-shadow:4px 0 20px rgba(0,0,0,.2);
+  padding:20px;
+  transition:.3s;
+  z-index:10;
+}
+.drawer.open{left:0}
+.drawer h3{margin-top:0}
+.drawer button{
+  width:100%;
+  margin-top:10px;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  background:var(--primary);
+  color:#fff;
+}
+
+/* SCREENS */
+.screen{display:none;padding:16px}
+.screen.active{display:block}
+
+/* UI */
+.card{
+  background:var(--card);
+  padding:16px;
+  border-radius:12px;
+  margin-top:16px;
+}
+h1,h2,h3{font-family:'Playfair Display',serif}
+.list-item{
+  padding:12px 0;
+  border-bottom:1px solid #ddd;
+  cursor:pointer;
+}
+button{
+  padding:10px 14px;
+  border:none;
+  border-radius:8px;
+  background:var(--primary);
+  color:#fff;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<header class="topbar">
+  <div class="left" onclick="toggleDrawer()">☰</div>
+  <div class="center">Experimental Brew</div>
+  <div class="right">🥄</div>
+</header>
+
+<div class="drawer" id="drawer">
+  <h3>Menu</h3>
+  <button onclick="goHome()">🏠 Início</button>
+  <button onclick="openCategories()">📂 Categorias</button>
+  <button onclick="toggleDark()">🌙 Modo escuro</button>
+  <button onclick="window.open('https://coffeeandjoy.com.br/r/234037405360e7635df3')">☕ Sugestões</button>
+</div>
+
+<!-- HOME -->
+<div class="screen active" id="home">
+  <h1>Bem-vindo ao Experimental Brew ☕</h1>
+  <p id="phrase"></p>
+
+  <div class="card">
+    <h2>Receita do dia</h2>
+    <h3>Citrus Coffee Suave ★</h3>
+    <p>Refrescante, aromático e equilibrado.</p>
+    <button onclick="openRecipe(13)">Ver receita</button>
+  </div>
+</div>
+
+<!-- CATEGORIES -->
+<div class="screen" id="categories">
+  <h2>Categorias</h2>
+  <div class="list-item" onclick="openList('gelados')">❄️ Cafés Gelados</div>
+  <div class="list-item" onclick="openList('quentes')">☕ Cafés Quentes</div>
+  <div class="list-item" onclick="openList('mocha')">🔥 Mocha / Moka</div>
+  <div class="list-item" onclick="openList('sobremesas')">🍨 Sobremesas</div>
+  <div class="list-item" onclick="openList('citrus')">🍊 Citrus / Frutados</div>
+  <div class="list-item" onclick="openList('coldbrew')">❄️ Cold Brew</div>
+  <div class="list-item" onclick="openList('flash')">⚡ Flash Brew</div>
+  <div class="list-item" onclick="openList('simples')">🌅 Cafés Simples</div>
+</div>
+
+<div class="screen" id="list"></div>
+<div class="screen" id="recipe"></div>
+
+<script>
+const phrases=[
+ "Café é pausa, ritual e prazer.",
+ "Cada xícara é uma nova experiência.",
+ "Menos pressa, mais café.",
+ "Experimente, ajuste, aproveite.",
+ "Café também é afeto."
+];
+document.getElementById("phrase").innerText=
+phrases[new Date().getDate()%phrases.length];
+
+const recipes=[
+ {id:1,cat:"gelados",title:"Café gelado com frutas vermelhas",text:"Ingredientes: café, gelo, xarope.\nProcesso: café → gelo → xarope.\nPerfil: doce leve."},
+ {id:2,cat:"gelados",title:"Café gelado com chocolate",text:"Perfil: mocha leve."},
+ {id:3,cat:"gelados",title:"Latte Ice de Baunilha",text:"Perfil: suave e cremoso."},
+ {id:4,cat:"gelados",title:"Latte Ice Baunilha Shot Forte",text:"Perfil: mais café."},
+ {id:5,cat:"gelados",title:"Café gelado chocolate intenso",text:"Perfil: intenso."},
+ {id:6,cat:"gelados",title:"Café gelado com gotas",text:"Perfil: aroma real."},
+ {id:7,cat:"gelados",title:"Iced Coffee Dubai Pistache",text:"Perfil: sobremesa."},
+
+ {id:8,cat:"quentes",title:"Café quente com caramelo",text:"Perfil: doce equilibrado."},
+ {id:9,cat:"quentes",title:"Caramel Latte com Whey",text:"Perfil: proteico."},
+
+ {id:10,cat:"mocha",title:"Mocha Latte",text:"Perfil: conforto."},
+ {id:11,cat:"mocha",title:"Mocha Iced Latte",text:"Perfil: refrescante."},
+
+ {id:12,cat:"sobremesas",title:"Afogato Clássico",text:"Perfil: amargo + doce."},
+
+ {id:13,cat:"citrus",title:"Citrus Coffee Suave ★",text:"Perfil: refrescante e aromático."},
+ {id:14,cat:"citrus",title:"Citrus Coffee Flash Brew",text:"Perfil: acidez viva."},
+ {id:15,cat:"citrus",title:"Strawberry Coffee",text:"Perfil: frutado leve."},
+ {id:16,cat:"citrus",title:"Strawberry Citrus",text:"Perfil: equilibrado."},
+
+ {id:17,cat:"coldbrew",title:"Cold Brew Puro",text:"Perfil: suave."},
+ {id:18,cat:"coldbrew",title:"Cold Brew 1:16 ★",text:"Perfil: refrescante."},
+ {id:19,cat:"coldbrew",title:"Cold Brew com Laranja",text:"Perfil: cítrico elegante."},
+ {id:20,cat:"coldbrew",title:"Cold Brew com Maracujá ★",text:"Perfil: ácido equilibrado."},
+ {id:21,cat:"coldbrew",title:"Cold Brew Maracujá seco",text:"Perfil: drink seco."},
+
+ {id:22,cat:"flash",title:"Flash Brew Tradicional",text:"Perfil: aroma máximo."},
+ {id:23,cat:"flash",title:"Flash Brew Maracujá",text:"Perfil: mais aromático."},
+
+ {id:24,cat:"simples",title:"Honey/Vanilla Iced Latte",text:"Perfil: confortável."},
+ {id:25,cat:"simples",title:"Cappuccino simples",text:"Perfil: clássico."},
+ {id:26,cat:"simples",title:"Orange Coffee",text:"Perfil: aprovado por você."},
+ {id:27,cat:"simples",title:"Japanese Iced Coffee",text:"Perfil: aroma máximo."}
+];
+
+function toggleDrawer(){
+ document.getElementById("drawer").classList.toggle("open");
+}
+function show(id){
+ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+ document.getElementById("drawer").classList.remove("open");
+}
+function goHome(){show("home")}
+function openCategories(){show("categories")}
+function openList(cat){
+ const box=document.getElementById("list");
+ box.innerHTML="<h2>Receitas</h2>";
+ recipes.filter(r=>r.cat===cat).forEach(r=>{
+  box.innerHTML+=`<div class="list-item" onclick="openRecipe(${r.id})">${r.title}</div>`;
+ });
+ show("list");
+}
+function openRecipe(id){
+ const r=recipes.find(x=>x.id===id);
+ document.getElementById("recipe").innerHTML=
+ `<button onclick="openCategories()">← Voltar</button>
+  <h2>${r.title}</h2>
+  <p>${r.text.replace(/\\n/g,"<br>")}</p>`;
+ show("recipe");
+}
+function toggleDark(){
+ document.body.classList.toggle("dark");
+}
+</script>
+
+</body>
+</html>
