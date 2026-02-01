@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Experimental Brew ☕</title>
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --primary:#a62d0e;
+  --secondary:#f6caa6;
+  --accent:#fbb03b;
+  --bg:#ffffff;
+  --text:#2b2b2b;
+}
+body.dark{
+  --bg:#121212;
+  --text:#f2f2f2;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+header{
+  position:fixed;
+  top:0; left:0; right:0;
+  height:50px;
+  background:linear-gradient(90deg,var(--primary),var(--accent));
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 14px;
+  color:white;
+  z-index:1000;
+  font-family:'Playfair Display',serif;
+}
+.menu{font-size:1.7rem;cursor:pointer}
+.spoon{font-size:1.3rem}
+.drawer{
+  position:fixed;
+  top:0; left:-260px;
+  width:260px; height:100%;
+  background:var(--bg);
+  padding:20px;
+  box-shadow:4px 0 20px rgba(0,0,0,.2);
+  transition:left .3s;
+  z-index:1200;
+}
+.drawer.open{left:0}
+.drawer button{
+  width:100%;
+  margin-top:10px;
+  padding:10px;
+}
+main{
+  margin-top:60px;
+  padding:16px;
+}
+.card{
+  background:#fff4e8;
+  border-radius:12px;
+  padding:16px;
+  margin-bottom:20px;
+}
+body.dark .card{background:#1e1e1e}
+h1,h2,h3{font-family:'Playfair Display',serif}
+.list-item{
+  padding:12px 0;
+  border-bottom:1px solid #ddd;
+  cursor:pointer;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.star{color:var(--accent)}
+.screen{display:none}
+.screen.active{display:block}
+.back{margin-bottom:12px;cursor:pointer}
+input{
+  width:100%;
+  padding:10px;
+  margin-bottom:10px;
+}
+.favorite{color:var(--accent); cursor:pointer; margin-left:5px;}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="menu" onclick="toggleDrawer()">☰</div>
+  Experimental Brew
+  <div class="spoon">🥄</div>
+</header>
+
+<div class="drawer" id="drawer">
+  <h3>Menu</h3>
+  <button onclick="goHome()">🏠 Início</button>
+  <button onclick="openScreen('categorias')">📂 Categorias</button>
+  <button onclick="openScreen('stats')">📊 Estatísticas</button>
+  <button onclick="toggleDark()">🌙 Modo escuro</button>
+</div>
+
+<main>
+
+<!-- HOME -->
+<div id="home" class="screen active">
+  <h1>Bem-vindo ao Experimental Brew ☕</h1>
+  <p id="frase"></p>
+  <div class="card">
+    <h2>Receita do dia</h2>
+    <h3 id="dayTitle"></h3>
+    <p id="dayDesc"></p>
+    <button onclick="openRecipe(dayRecipe)">Ver receita</button>
+  </div>
+</div>
+
+<!-- CATEGORIAS -->
+<div id="categorias" class="screen">
+  <div class="back" onclick="goHome()">← Voltar</div>
+  <input placeholder="Buscar receita..." oninput="search(this.value)">
+  <div id="recipeList"></div>
+</div>
+
+<!-- RECEITA -->
+<div id="recipe" class="screen">
+  <div class="back" onclick="openScreen('categorias')">← Voltar</div>
+  <h2 id="recipeTitle"></h2>
+  <pre id="recipeContent" style="white-space:pre-wrap;"></pre>
+</div>
+
+<!-- ESTATÍSTICAS -->
+<div id="stats" class="screen">
+  <div class="back" onclick="goHome()">← Voltar</div>
+  <h2>Bullet Journal do Café</h2>
+  <div id="statsContent">
+    <p>Marque os cafés que você fez hoje!</p>
+    <div id="todayList"></div>
+  </div>
+</div>
+
+</main>
+
+<script>
+const frases=[
+ "Café é pausa, é ritual, é prazer.",
+ "Cada xícara é um novo começo.",
+ "Menos pressa, mais café.",
+ "Experimente, ajuste, aproveite.",
+ "Café bom é o que faz sentido pra você."
+];
+document.getElementById("frase").innerText =
+frases[new Date().getDate()%frases.length];
+
+function toggleDrawer(){document.getElementById("drawer").classList.toggle("open")}
+function toggleDark(){document.body.classList.toggle("dark")}
+function openScreen(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  document.getElementById("drawer").classList.remove("open");
+}
+function goHome(){openScreen("home")}
+
+// ----- RECEITAS -----
+const recipes = {
+iced_chocolate:{
+    title:"Café gelado com chocolate (Nescau)",
+    desc:`Ingredientes:
+• 120ml de café quente
+• 2 colheres de sopa de chocolate em pó
+• 100ml de leite gelado
+• 5 cubos de gelo
+• 1 colher de chá de açúcar (opcional)
+
+Processo:
+1. Dissolva o chocolate no café quente e adoce se desejar.
+2. Deixe esfriar ou leve à geladeira por 10-15 min.
+3. Coloque os cubos de gelo em um copo.
+4. Adicione o leite gelado.
+5. Despeje o café com chocolate sobre o gelo e mexa suavemente.
+
+Perfil:
+Mocha suave, equilibrado entre chocolate e café, cremoso e refrescante.`
+  },
+
+  iced_vanilla:{
+    title:"Latte Ice de Baunilha",
+    desc:`Ingredientes:
+• 120ml de café expresso forte gelado
+• 100ml de leite gelado
+• 1 colher de chá de essência de baunilha
+• 1 colher de sopa de açúcar
+• 5 cubos de gelo
+
+Processo:
+1. Faça um café expresso forte e deixe esfriar.
+2. Coloque os cubos de gelo em um copo alto.
+3. Misture café, açúcar e baunilha.
+4. Despeje sobre o gelo e complete com o leite gelado.
+5. Mexa suavemente para combinar.
+
+Perfil:
+Suave, cremoso e aromático, com café equilibrado e notas de baunilha.`
+  },
+
+  iced_vanilla_strong:{
+    title:"Latte Ice de Baunilha com shot forte",
+    desc:`Ingredientes:
+• 180ml de café expresso forte gelado
+• 100ml de leite gelado
+• 1 colher de chá de essência de baunilha
+• 1 colher de sopa de açúcar
+• 5 cubos de gelo
+
+Processo:
+1. Prepare café expresso mais concentrado.
+2. Coloque gelo em copo alto.
+3. Misture café com açúcar e baunilha.
+4. Despeje sobre o gelo e adicione leite gelado.
+5. Mexa suavemente, mantendo camada de café por cima se quiser.
+
+Perfil:
+Mais intenso, com sabor marcante de café e notas suaves de baunilha.`
+  },
+
+  iced_chocolate_strong:{
+    title:"Café gelado com chocolate bem carregado",
+    desc:`Ingredientes:
+• 150ml de café expresso forte
+• 3 colheres de sopa de chocolate meio amargo derretido
+• 100ml de leite gelado
+• 5 cubos de gelo
+
+Processo:
+1. Prepare café expresso forte.
+2. Derreta o chocolate e misture no café quente.
+3. Deixe esfriar um pouco e coloque sobre gelo em copo alto.
+4. Complete com leite gelado e mexa delicadamente.
+
+Perfil:
+Intenso e encorpado, chocolate marcante, perfeito para quem gosta de sabor forte.`
+  },
+
+  honey_vanilla:{
+    title:"Honey / Vanilla Iced Latte",
+    desc:`Ingredientes:
+• 120ml de café gelado
+• 100ml de leite gelado
+• 1 colher de chá de essência de baunilha
+• 1 colher de sopa de mel
+• 5 cubos de gelo
+
+Processo:
+1. Misture café, baunilha e mel.
+2. Coloque gelo em copo alto.
+3. Despeje a mistura sobre o gelo.
+4. Complete com leite gelado e mexa suavemente.
+
+Perfil:
+Doce confortável, aroma de baunilha e toque natural de mel.`
+  },
+
+  whey_latte:{
+    title:"Caramel Latte / Macchiato com Whey",
+    desc:`Ingredientes:
+• 120ml de café expresso
+• 1 scoop (30g) de whey sabor baunilha ou neutro
+• 50ml de leite quente
+• 1 colher de chá de caramelo
+
+Processo:
+1. Misture o whey no leite quente até dissolver.
+2. Acrescente o café.
+3. Finalize com caramelo por cima.
+
+Perfil:
+Proteico, doce suave e cremoso. Ótimo pré-treino ou lanche da manhã.`
+  },
+
+  mocha_hot:{
+    title:"Mocha Latte (quente)",
+    desc:`Ingredientes:
+• 120ml de café expresso quente
+• 80ml de leite quente
+• 1 colher de sopa de chocolate em pó
+
+Processo:
+1. Misture chocolate no café quente.
+2. Adicione o leite quente e mexa bem.
+3. Sirva imediatamente.
+
+Perfil:
+Conforto e cremosidade, perfeito para manhãs frias.`
+  },
+
+  mocha_iced:{
+    title:"Mocha Iced Latte",
+    desc:`Ingredientes:
+• 120ml de café quente
+• 2 colheres de sopa de chocolate em pó
+• 100ml de leite gelado
+• 5 cubos de gelo
+
+Processo:
+1. Misture chocolate no café quente.
+2. Deixe esfriar por alguns minutos.
+3. Coloque gelo em copo alto, adicione café com chocolate.
+4. Complete com leite gelado e mexa delicadamente.
+
+Perfil:
+Refrescante, equilíbrio entre chocolate e café, ideal para dias quentes.`
+  },
+
+  afogato:{
+    title:"Afogato Clássico",
+    desc:`Ingredientes:
+• 1 bola de sorvete de baunilha (50g)
+• 60ml de café expresso quente
+
+Processo:
+1. Coloque a bola de sorvete em copo ou xícara.
+2. Despeje café quente por cima.
+3. Sirva imediatamente.
+
+Perfil:
+Amargo + doce, contraste marcante entre café quente e sorvete gelado.`
+  },
+
+  citrus:{
+    title:"Citrus Coffee Suave",
+    desc:`Ingredientes:
+• 120ml de café coado
+• 10ml de suco de laranja fresco 
+
+Processo:
+1. Prepare café coado.
+2. Adicione o suco de laranja ao café.
+3. Mexa suavemente e sirva gelado.
+
+Perfil:
+Refrescante e aromático, leve acidez cítrica.`
+  },
+
+  citrus_flash:{
+    title:"Flash Brew",
+    desc:`Ingredientes:
+• 15g de café moído
+• 240ml de água
+• 70g de gelo
+
+Processo:
+1. Coloque o gelo no copo.
+2. Coe o café diretamente sobre o gelo.
+3. Sirva imediatamente.
+
+Perfil:
+Acidez viva, aroma intenso, ideal para quem gosta de café refrescante e leve.`
+  },
+
+  strawberry:{
+    title:"Strawberry Coffee Suave",
+    desc:`Ingredientes:
+• 120ml de café gelado
+• 50ml de suco de morango coado
+• 5 cubos de gelo
+
+Processo:
+1. Coloque o gelo no copo.
+2. Adicione café gelado e suco de morango.
+3. Misture suavemente e sirva.
+
+Perfil:
+Frutado, refrescante, doce leve.`
+  },
+
+  strawberry_citrus:{
+    title:"Strawberry Citrus Iced Coffee",
+    desc:`Ingredientes:
+• 120ml de café gelado
+• 40ml de suco de morango
+• 10ml de suco de laranja
+• 5 cubos de gelo
+
+Processo:
+1. Coloque gelo em copo alto e adicione os sucos.
+2. adicione o café.
+3. Mexa suavemente e sirva.
+
+Perfil:
+Equilibrado, refrescante, notas frutadas e cítricas.`
+  },
+
+  coldbrew_pure:{
+    title:"Cold Brew Puro – Solstício",
+    desc:`Ratio:
+    1:15
+    Ingredientes:
+• 20g café moído
+• 300ml de água fria
+
+Processo:
+1. Misture café e água fria em jarra ou pote com tampa.
+2. Deixe na geladeira por 10-12h.
+3. Coe e sirva gelado.
+
+Perfil:
+Suave, aromático, café leve e refrescante.`
+  },
+
+  coldbrew_fav:{
+    title:"Cold Brew 1:16",
+    desc:`Ratio:
+    1:16
+    
+    Ingredientes:
+• 40g café moído
+• 640ml de água fria
+
+Processo:
+1. Misture café e água fria em jarra ou pote com tampa.
+2. Deixe na geladeira por 12h.
+3. Coe e sirva gelado.
+
+Perfil:
+Leve, refrescante e aromático.`
+  },
+
+  coldbrew_orange:{
+    title:"Cold Brew com Laranja",
+    desc:`Ratio:
+    1:15
+    
+    Ingredientes:
+• 20g café moído
+• 300ml de água fria
+• Casca de 1 laranja (sem pegar a parte banca)
+
+Processo:
+1. Misture café, água e casca de laranja em jarra ou pote com tampa.
+2. Deixe na geladeira por 10-12h.
+3. Coe e sirva gelado.
+
+Perfil:
+Cítrico elegante, refrescante, aroma de laranja natural.`
+  },
+
+  maracuja:{
+    title:"Cold Brew com Maracujá",
+    desc:`Ratio:
+    1:15
+    
+    Ingredientes:
+• 20g café moído
+• 300ml de água fria
+• 15g polpa de maracujá
+
+Processo:
+1. Misture café, água e polpa em jarra ou pote com tampa.
+2. Deixe na geladeira por 10-12h.
+3. Coe e sirva gelado.
+
+Perfil:
+Ácido equilibrado, seco, frutado.`
+  },
+
+  flashbrew:{
+    title:"Flash Brew Tradicional",
+    desc:`Ingredientes:
+• 20g café moído
+• 160ml de água quente
+• 60g de gelo
+
+Processo:
+1. Coloque gelo no copo.
+2. Coe café quente diretamente sobre o gelo.
+3. Sirva imediatamente.
+
+Perfil:
+Aromático, refrescante, acidez equilibrada.`
+  },
+
+  flash_maracuja:{
+    title:"Flash Brew com Maracujá",
+    desc:`Ratio:
+    1:16
+    
+    Ingredientes:
+• 15g café moído
+• 170ml água quente
+• 75g gelo
+• 15g polpa de maracujá
+
+Processo:
+1. Coloque gelo em copo.
+2. Adicione a polpa de maracujá.
+3. Coe café quente sobre o gelo.
+4. Misture delicadamente e sirva.
+5. Coe novamente e sirva.
+
+Perfil:
+Aromático, frutado, refrescante.`
+  },
+
+  cappuccino:{
+    title:"Cappuccino simples",
+    desc:`Ingredientes:
+• 120ml café expresso
+• 80ml leite vaporizado
+• 1 colher de chá de chocolate em pó
+• Pitada de canela
+
+Processo:
+1. Prepare o café expresso.
+2. Aqueça e espuma o leite.
+3. Misture café com leite e chocolate.
+4. Finalize com canela.
+
+Perfil:
+Clássico, cremoso, reconfortante.`
+  },
+
+  orange_concept:{
+    title:"Orange Coffee (conceito)",
+    desc:`Ingredientes:
+• 120ml de café coado
+• 60ml de suco de laranja fresco 
+
+Processo:
+1. Prepare café coado.
+2. Adicione o suco de laranja ao café.
+3. Mexa suavemente e sirva gelado.
+
+Perfil:
+Refrescante, aroma cítrico, sabor equilibrado.`
+  },
+
+  japanese:{
+    title:"Flash brew (Japanese Iced Coffee)",
+    desc:`Ratio:
+    1:15
+    
+    Ingredientes:
+• 20g café moído
+• 210ml água quente
+• 90g gelo
+
+Processo:
+1. Coloque gelo no copo.
+2. Coe café quente diretamente sobre o gelo.
+3. Sirva imediatamente, preservando aroma e acidez.
+
+Perfil:
+Aroma intenso, refrescante, perfeito para cafés gelados artesanais.`
+  }
+};
+
+// FAVORITOS
+// ----- FAVORITOS COM LOCALSTORAGE -----
+const favorites = JSON.parse(localStorage.getItem("favorites") || "{}");
+
+function renderList(filter=""){
+  list.innerHTML="";
+  Object.keys(recipes).forEach(id=>{
+    if(recipes[id].title.toLowerCase().includes(filter.toLowerCase())){
+      const div = document.createElement("div");
+      div.className="list-item";
+
+      const favSpan = document.createElement("span");
+      favSpan.className="favorite";
+      favSpan.innerText = favorites[id] ? "★" : "☆";
+      favSpan.onclick = (e)=>{
+        e.stopPropagation();
+        if(favorites[id]){
+          delete favorites[id];
+        }else{
+          favorites[id]=true;
+        }
+        localStorage.setItem("favorites", JSON.stringify(favorites)); // salva no navegador
+        renderList(document.querySelector('input').value);
+      };
+
+      div.innerText = recipes[id].title;
+      div.appendChild(favSpan);
+      div.onclick = ()=>openRecipe(id);
+      list.appendChild(div);
+    }
+  });
+}
+
+// render inicial
+renderList();
+
+// ----- LISTAGEM -----
+const list = document.getElementById("recipeList");
+function renderList(filter=""){
+  list.innerHTML="";
+  Object.keys(recipes).forEach(id=>{
+    if(recipes[id].title.toLowerCase().includes(filter.toLowerCase())){
+      const div = document.createElement("div");
+      div.className="list-item";
+
+      const favSpan = document.createElement("span");
+      favSpan.className="favorite";
+      favSpan.innerText = favorites[id] ? "★" : "☆";
+      favSpan.onclick = (e)=>{
+        e.stopPropagation();
+        if(favorites[id]){
+          delete favorites[id];
+        }else{
+          favorites[id]=true;
+        }
+        renderList(document.querySelector('input').value);
+      };
+
+      div.innerText = recipes[id].title;
+      div.appendChild(favSpan);
+      div.onclick = ()=>openRecipe(id);
+      list.appendChild(div);
+    }
+  });
+}
+renderList();
+
+function search(v){renderList(v)}
+
+// ----- ABRIR RECEITA -----
+function openRecipe(id){
+  document.getElementById("recipeTitle").innerText = recipes[id].title;
+  document.getElementById("recipeContent").innerText = recipes[id].desc;
+  openScreen("recipe");
+}
+
+// ----- RECEITA DO DIA -----
+const keys=Object.keys(recipes);
+const dayIndex=new Date().getDate()%keys.length;
+const dayRecipe=keys[dayIndex];
+document.getElementById("dayTitle").innerText=recipes[dayRecipe].title;
+document.getElementById("dayDesc").innerText=recipes[dayRecipe].desc.split("\n")[0];
+
+// ----- MARCAR CAFÉS FEITOS (Estatísticas) -----
+const todayList=document.getElementById("todayList");
+Object.keys(recipes).forEach(id=>{
+  const div=document.createElement("div");
+  const checkbox=document.createElement("input");
+  checkbox.type="checkbox";
+  checkbox.id="done_"+id;
+  checkbox.onclick=()=>updateStats();
+  const label=document.createElement("label");
+  label.htmlFor="done_"+id;
+  label.innerText=recipes[id].title;
+  div.appendChild(checkbox);
+  div.appendChild(label);
+  todayList.appendChild(div);
+});
+
+function updateStats(){
+  console.log("Atualizar estatísticas...");
+}
+</script>
+
+</body>
+</html>
